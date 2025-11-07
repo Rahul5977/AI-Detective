@@ -25,8 +25,8 @@ if __name__ == '__main__':
     print("🔍 AI DETECTIVE - CSP Investigation System")
     print("=" * 50)
     print("🚀 Server starting...")
-    print("📍 URL: http://localhost:5000")
-    print("📚 API Docs: http://localhost:5000/api")
+    print("📍 URL: http://localhost:5002")
+    print("📚 API Docs: http://localhost:5002/api")
     print("=" * 50)
     print("\nAvailable endpoints:")
     print("  POST /api/game/start       - Start new game")
@@ -36,4 +36,4 @@ if __name__ == '__main__':
     print("  POST /api/game/accuse      - Make accusation")
     print("\nPress CTRL+C to stop\n")
     
-    app.run(debug=True, port=5000, host='0.0.0.0')
+    app.run(debug=True, port=5002, host='0.0.0.0')
