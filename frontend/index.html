@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🕵️ AI Detective - CSP Investigation System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🕵️‍♂️ AI Detective</h1>
+            <p class="subtitle">CSP-Based Investigation System</p>
+        </header>
+
+        <!-- Game Controls -->
+        <div class="game-controls">
+            <button id="startGame" class="btn btn-primary">🎮 Start New Game</button>
+            <button id="aiSuggest" class="btn btn-secondary" disabled>🤖 Get AI Suggestion (A*)</button>
+            <button id="minimaxSuggest" class="btn btn-secondary" disabled>🧠 Best Question (Minimax)</button>
+        </div>
+
+        <!-- Game Status -->
+        <div id="gameStatus" class="game-status hidden">
+            <div class="status-grid">
+                <div class="status-card">
+                    <h3>💰 Total Cost</h3>
+                    <p id="totalCost" class="stat-value">0</p>
+                </div>
+                <div class="status-card">
+                    <h3>🔍 Actions Taken</h3>
+                    <p id="actionsTaken" class="stat-value">0</p>
+                </div>
+                <div class="status-card">
+                    <h3>🎯 Possible Solutions</h3>
+                    <p id="possibleSolutions" class="stat-value">27</p>
+                </div>
+                <div class="status-card">
+                    <h3>📊 Constraints</h3>
+                    <p id="constraintsCount" class="stat-value">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Left Panel: Available Actions -->
+            <div class="panel">
+                <h2>📋 Available Actions</h2>
+                <div id="availableActions" class="actions-list">
+                    <p class="empty-state">Start a game to see available actions</p>
+                </div>
+            </div>
+
+            <!-- Center Panel: Current Domains (CSP State) -->
+            <div class="panel">
+                <h2>🧩 Current CSP Domains</h2>
+                <div id="currentDomains" class="domains-container">
+                    <p class="empty-state">No active game</p>
+                </div>
+
+                <!-- AI Suggestion Panel -->
+                <div id="aiSuggestionPanel" class="ai-panel hidden">
+                    <h3>🤖 AI Suggestion</h3>
+                    <div id="aiSuggestion"></div>
+                </div>
+
+                <!-- Minimax Panel -->
+                <div id="minimaxPanel" class="ai-panel hidden">
+                    <h3>🧠 Best Interrogation Question</h3>
+                    <div id="minimaxSuggestion"></div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Investigation History -->
+            <div class="panel">
+                <h2>📜 Investigation History</h2>
+                <div id="investigationHistory" class="history-list">
+                    <p class="empty-state">No actions taken yet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CSP Visualization -->
+        <div id="cspVisualization" class="panel hidden">
+            <h2>🔬 CSP Algorithm Steps</h2>
+            <div id="cspSteps" class="csp-steps"></div>
+        </div>
+
+        <!-- Accusation Panel -->
+        <div id="accusationPanel" class="panel hidden">
+            <h2>⚖️ Make Your Accusation</h2>
+            <div class="accusation-form">
+                <div class="form-group">
+                    <label>Suspect:</label>
+                    <select id="accuseSuspect">
+                        <option value="">Select Suspect</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Weapon:</label>
+                    <select id="accuseWeapon">
+                        <option value="">Select Weapon</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Location:</label>
+                    <select id="accuseLocation">
+                        <option value="">Select Location</option>
+                    </select>
+                </div>
+                <button id="makeAccusation" class="btn btn-danger">🎯 Accuse!</button>
+            </div>
+        </div>
+
+        <!-- Modal for Results -->
+        <div id="resultModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div id="resultContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
