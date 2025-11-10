@@ -5,12 +5,14 @@ Main Flask application
 from flask import Flask
 from flask_cors import CORS
 from api.routes import api
+from routes.ai_detective import ai_detective_bp
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for frontend
 
 # Register blueprints
 app.register_blueprint(api, url_prefix='/api')
+app.register_blueprint(ai_detective_bp, url_prefix='/api/ai')  # Add this line
 
 @app.route('/')
 def home():
