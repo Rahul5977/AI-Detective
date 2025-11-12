@@ -30,8 +30,8 @@ export const gameService = {
 };
 
 export const aiService = {
-  getSuggestion: async (sessionId) => {
-    const response = await fetch(`${API_URL}/ai/suggest`, {
+  makeAIMove: async (sessionId) => {
+    const response = await fetch(`${API_URL}/ai/make-move`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ session_id: sessionId }),
@@ -39,19 +39,20 @@ export const aiService = {
     return response.json();
   },
 
-  getMinimaxSuggestion: async () => {
-    const response = await fetch(`${API_URL}/ai/minimax`, {
+  autoSolve: async (sessionId) => {
+    const response = await fetch(`${API_URL}/ai/auto-solve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sessionId }),
     });
     return response.json();
   },
 
-  askQuestion: async (questionId) => {
-    const response = await fetch(`${API_URL}/interrogation/ask`, {
+  getSuggestion: async (sessionId) => {
+    const response = await fetch(`${API_URL}/ai/suggest`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question_id: questionId }),
+      body: JSON.stringify({ session_id: sessionId }),
     });
     return response.json();
   },

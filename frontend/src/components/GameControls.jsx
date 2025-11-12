@@ -1,25 +1,25 @@
-const GameControls = ({ onStartGame, onAISuggest, onMinimaxSuggest, gameStarted }) => {
+const GameControls = ({ onStartGame, onAIMakeMove, onAutoSolve, gameStarted, winner }) => {
   return (
     <div className="flex gap-4 justify-center mb-5 flex-wrap">
       <button
         onClick={onStartGame}
-        className="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold shadow-md hover:bg-blue-600 hover:-translate-y-0.5 transition-all duration-300"
+        className="px-8 py-4 bg-green-500 text-white rounded-xl font-bold text-lg shadow-lg hover:bg-green-600 hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
       >
-        🎮 Start New Game
+        🎮 Start New Race
       </button>
       <button
-        onClick={onAISuggest}
-        disabled={!gameStarted}
-        className="px-6 py-3 bg-green-500 text-white rounded-lg font-semibold shadow-md hover:bg-green-600 hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+        onClick={onAIMakeMove}
+        disabled={!gameStarted || !!winner}
+        className="px-8 py-4 bg-purple-500 text-white rounded-xl font-bold text-lg shadow-lg hover:bg-purple-600 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        🤖 Get AI Suggestion (A*)
+        🤖 AI Make Move
       </button>
       <button
-        onClick={onMinimaxSuggest}
-        disabled={!gameStarted}
-        className="px-6 py-3 bg-green-500 text-white rounded-lg font-semibold shadow-md hover:bg-green-600 hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+        onClick={onAutoSolve}
+        disabled={!gameStarted || !!winner}
+        className="px-8 py-4 bg-orange-500 text-white rounded-xl font-bold text-lg shadow-lg hover:bg-orange-600 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        🧠 Best Question (Minimax)
+        ⚡ Watch AI Auto-Solve
       </button>
     </div>
   );

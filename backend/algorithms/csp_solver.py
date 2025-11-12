@@ -1,231 +1,94 @@
 """
-CSP Solver with Arc Consistency (AC-3 Algorithm)
-Implemented from scratch without external dependencies
+Enhanced CSP Solver with Arc Consistency (AC-3) and detailed step tracking
 """
+import copy
 
 class CSPSolver:
     def __init__(self, domains, constraints):
-        self.domains = {k: v.copy() for k, v in domains.items()}
+        """
+        Initialize CSP Solver
+        domains: dict of {variable: [possible_values]}
+        constraints: list of (category, value, action_type) tuples
+        """
+        self.domains = copy.deepcopy(domains)
         self.constraints = constraints
-        self.steps = []  # For visualization
-        
+        self.steps = []
+    
     def solve(self):
         """
-        Solve CSP using constraint propagation and backtracking
-        Returns all valid solutions
+        Solve CSP using constraint propagation
+        Returns True if consistent, False if inconsistency detected
         """
-        # First apply arc consistency
-        self.arc_consistency_ac3()
+        self.steps = []
         
-        # Then find all solutions using backtracking
-        solutions = []
-        assignment = {}
-        self._backtrack(assignment, solutions)
-        
-        return {
-            'solutions': solutions,
-            'count': len(solutions),
-            'domains': self.domains
-        }
-    
-    def _backtrack(self, assignment, solutions):
-        """
-        Backtracking search to find all valid assignments
-        """
-        # Check if assignment is complete
-        if len(assignment) == len(self.domains):
-            solutions.append(assignment.copy())
-            return
-        
-        # Select unassigned variable
-        var = self._select_unassigned_variable(assignment)
-        
-        # Try each value in domain
-        for value in self.domains[var]:
-            if self._is_consistent(var, value, assignment):
-                assignment[var] = value
-                self._backtrack(assignment, solutions)
-                del assignment[var]
-    
-    def _select_unassigned_variable(self, assignment):
-        """Select next variable to assign (MRV heuristic)"""
-        unassigned = [v for v in self.domains.keys() if v not in assignment]
-        # Choose variable with smallest domain (Minimum Remaining Values)
-        return min(unassigned, key=lambda v: len(self.domains[v]))
-    
-    def _is_consistent(self, var, value, assignment):
-        """Check if assignment is consistent with constraints"""
-        # For this simple case, we don't have complex binary constraints
-        # between variables, so we just check if value is in domain
-        return value in self.domains[var]
-    
-    def arc_consistency_ac3(self):
-        """
-        AC-3 Algorithm for arc consistency
-        """
-        # Initialize queue with all arcs
-        queue = []
-        variables = list(self.domains.keys())
-        
-        for xi in variables:
-            for xj in variables:
-                if xi != xj:
-                    queue.append((xi, xj))
-        
-        self.steps.append({
-            'step': 'Initialize',
-            'queue_size': len(queue),
-            'domains': {k: v.copy() for k, v in self.domains.items()},
-            'message': f'Starting AC-3 with {len(queue)} arcs'
-        })
-        
-        # Process queue
-        while queue:
-            xi, xj = queue.pop(0)
-            
-            if self._revise(xi, xj):
-                if len(self.domains[xi]) == 0:
+        # Apply explicit constraints first
+        for category, value, action_type in self.constraints:
+            if action_type == 'eliminate':
+                if value in self.domains[category]:
+                    self.domains[category].remove(value)
                     self.steps.append({
-                        'step': 'Failure',
-                        'variable': xi,
-                        'domains': {k: v.copy() for k, v in self.domains.items()},
-                        'message': f'Domain of {xi} became empty! Inconsistent.'
+                        'step': 'Elimination',
+                        'message': f"Eliminated {value} from {category}",
+                        'type': 'elimination'
                     })
-                    return False
-                
-                # Add neighbors back to queue
-                for xk in variables:
-                    if xk != xi and xk != xj:
-                        queue.append((xk, xi))
-                
-                self.steps.append({
-                    'step': 'Revised',
-                    'arc': (xi, xj),
-                    'domains': {k: v.copy() for k, v in self.domains.items()},
-                    'message': f'Revised domain of {xi}'
-                })
+            elif action_type == 'confirm':
+                if len(self.domains[category]) > 1:
+                    self.domains[category] = [value]
+                    self.steps.append({
+                        'step': 'Confirmation',
+                        'message': f"Confirmed {value} as {category}",
+                        'type': 'confirmation'
+                    })
         
-        self.steps.append({
-            'step': 'Complete',
-            'domains': {k: v.copy() for k, v in self.domains.items()},
-            'message': 'Arc consistency achieved!'
-        })
+        # Apply arc consistency
+        changed = True
+        iterations = 0
+        max_iterations = 10
         
-        return True
-    
-    def _revise(self, xi, xj):
-        """
-        Make xi arc-consistent with xj
-        Returns True if domain of xi was revised
-        """
-        revised = False
-        
-        # Check each value in xi's domain
-        for x in self.domains[xi][:]:  # Create copy to iterate
-            # Check if there exists a value in xj's domain that satisfies constraint
-            # For our detective game, variables are independent, so this is simplified
-            # In a real CSP with binary constraints, we'd check constraint satisfaction
+        while changed and iterations < max_iterations:
+            changed = False
+            iterations += 1
             
-            # This is placeholder logic - in practice, you'd check actual constraints
-            # For now, we just ensure domains aren't empty
-            if not self.domains[xj]:
-                self.domains[xi].remove(x)
-                revised = True
+            # Check for singleton domains and propagate
+            for var1, values1 in self.domains.items():
+                if len(values1) == 1:
+                    # This variable is assigned, check others
+                    assigned_value = values1[0]
+                    
+                    for var2, values2 in self.domains.items():
+                        if var1 != var2 and assigned_value in values2 and len(values2) > 1:
+                            # Remove this value from other domain
+                            self.domains[var2].remove(assigned_value)
+                            changed = True
+                            self.steps.append({
+                                'step': 'Arc Consistency',
+                                'message': f"Removed {assigned_value} from {var2} (already assigned to {var1})",
+                                'type': 'elimination'
+                            })
         
-        return revised
-    
-    def arc_consistency_step_by_step(self):
-        """
-        Run AC-3 algorithm with step-by-step tracking (already done in arc_consistency_ac3)
-        This method is for compatibility
-        """
-        if not self.steps:
-            self.arc_consistency_ac3()
+        # Check for empty domains
+        for var, values in self.domains.items():
+            if len(values) == 0:
+                self.steps.append({
+                    'step': 'Inconsistency',
+                    'message': f"Domain of {var} is empty - no solution possible",
+                    'type': 'error'
+                })
+                return False
+        
         return True
     
-    def get_visualization_steps(self):
-        """Return steps for frontend visualization"""
+    def get_steps(self):
+        """Return all algorithm steps for visualization"""
         return self.steps
     
-    def eliminate_values(self, var_type, values_to_remove):
-        """
-        Eliminate specific values from a variable's domain
-        This is the main method used when applying game constraints
-        """
-        if var_type not in self.domains:
-            return
-        
-        original_domain = self.domains[var_type].copy()
-        self.domains[var_type] = [v for v in self.domains[var_type] 
-                                   if v not in values_to_remove]
-        
-        removed = [v for v in original_domain if v not in self.domains[var_type]]
-        
-        if removed:
-            self.steps.append({
-                'step': 'Elimination',
-                'variable': var_type,
-                'removed': removed,
-                'remaining': self.domains[var_type].copy(),
-                'original': original_domain,
-                'message': f'Eliminated {len(removed)} value(s) from {var_type}: {", ".join(removed)}'
-            })
+    def is_solved(self):
+        """Check if all variables are assigned"""
+        return all(len(values) == 1 for values in self.domains.values())
     
-    def keep_only_values(self, var_type, values_to_keep):
-        """
-        Keep only specific values in a variable's domain (used for 'confirms' constraints)
-        """
-        if var_type not in self.domains:
-            return
-        
-        original_domain = self.domains[var_type].copy()
-        
-        if isinstance(values_to_keep, str):
-            values_to_keep = [values_to_keep]
-        
-        self.domains[var_type] = [v for v in self.domains[var_type] 
-                                   if v in values_to_keep]
-        
-        removed = [v for v in original_domain if v not in self.domains[var_type]]
-        
-        if removed:
-            self.steps.append({
-                'step': 'Confirmation',
-                'variable': var_type,
-                'kept': self.domains[var_type].copy(),
-                'removed': removed,
-                'message': f'Confirmed {var_type}: {", ".join(self.domains[var_type])}'
-            })
-    
-    def apply_constraint(self, constraint):
-        """
-        Apply a constraint to the CSP
-        Used when new evidence is discovered
-        """
-        # Handle 'eliminates' constraints
-        if 'eliminates' in constraint:
-            for var_type, values in constraint['eliminates'].items():
-                if isinstance(values, str):
-                    values = [values]
-                self.eliminate_values(var_type, values)
-        
-        # Handle 'confirms' constraints
-        if 'confirms' in constraint:
-            for var_type, value in constraint['confirms'].items():
-                self.keep_only_values(var_type, value)
-        
-        # Run arc consistency after applying constraint
-        self.arc_consistency_ac3()
-    
-    def get_statistics(self):
-        """Get current CSP statistics"""
-        total_combinations = 1
-        for domain in self.domains.values():
-            total_combinations *= len(domain) if domain else 0
-        
-        return {
-            'total_possible_combinations': total_combinations,
-            'domains': {k: len(v) for k, v in self.domains.items()},
-            'is_solved': all(len(v) == 1 for v in self.domains.values()),
-            'is_inconsistent': any(len(v) == 0 for v in self.domains.values())
-        }
+    def count_solutions(self):
+        """Count number of possible solutions"""
+        count = 1
+        for values in self.domains.values():
+            count *= len(values)
+        return count

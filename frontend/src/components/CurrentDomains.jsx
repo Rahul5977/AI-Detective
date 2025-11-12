@@ -1,10 +1,8 @@
-const CurrentDomains = ({ domains }) => {
+const CurrentDomains = ({ domains, title = "🧩 Current CSP Domains" }) => {
   if (!domains) {
     return (
-      <div className="bg-white p-6 rounded-2xl shadow-lg">
-        <h2 className="text-2xl font-bold text-gray-800 mb-5 pb-2 border-b-4 border-blue-500">
-          🧩 Current CSP Domains
-        </h2>
+      <div className="bg-white p-6 rounded-xl shadow-md">
+        <h2 className="text-xl font-bold text-gray-800 mb-4">{title}</h2>
         <p className="text-center text-gray-400 italic p-5">No active game</p>
       </div>
     );
@@ -13,10 +11,8 @@ const CurrentDomains = ({ domains }) => {
   const isSolved = Object.values(domains).every((vals) => vals.length === 1);
 
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-lg">
-      <h2 className="text-2xl font-bold text-gray-800 mb-5 pb-2 border-b-4 border-blue-500">
-        🧩 Current CSP Domains
-      </h2>
+    <div className="bg-white p-6 rounded-xl shadow-md">
+      <h2 className="text-xl font-bold text-gray-800 mb-4">{title}</h2>
       <div className="flex flex-col gap-4">
         {Object.entries(domains).map(([category, values]) => (
           <div
